@@ -1,0 +1,19 @@
+{
+  "name": "webrtc2core",
+  "version": "0.1.0",
+  "description": "webrtc2core is a front-end WebRTC client.",
+  "author": "zer0 <osom8979@gmail.com> (https://github.com/osom8979/webrtc2core)",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --config webpack/webpack.config.js"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "webpack": "^4.41.5",
+    "webrtc-adapter": "^7.5.0"
+  },
+  "engines": {
+    "node": ">= 12"
+  }
+}
+
