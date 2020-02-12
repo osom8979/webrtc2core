@@ -6,3 +6,7 @@
 
 webrtc2core is a front-end WebRTC client.
 
+## Visual Studio Code Extension
+
+```
+```

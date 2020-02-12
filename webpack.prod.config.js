@@ -1,0 +1,33 @@
+const path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+const root_dir = path.resolve(__dirname)
+const src_dir = path.join(root_dir, 'src')
+const dest_dir = path.join(root_dir, 'dest')
+
+module.exports = {
+  context: src_dir,
+  mode: "production",
+  entry: {
+      main: path.join(src_dir, 'main.ts')
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [ '.tsx', '.ts', '.js' ],
+  },
+  optimization: {
+    minimizer: [new UglifyJsPlugin()],
+  },
+  output: {
+    path: dest_dir,
+    filename: 'webrtc2core.min.js'
+  }
+};

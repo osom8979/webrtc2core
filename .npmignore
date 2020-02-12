@@ -72,6 +72,19 @@ Desktop.ini
 ### Node ###
 node_modules/
 *.lock
+.npmrc
+
+###########
+### VCM ###
+.git
+.svn
+.hg
+CVS
+
+##############
+### Common ###
+*.swp
+*.log
 
 ###############
 ### Project ###
