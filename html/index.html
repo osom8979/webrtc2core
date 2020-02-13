@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Default video player</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="webrtc2core.js"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+            const client = new libwebrtc2core.WebRTC2Core();
+            console.log(client.run());
+        }
+        //rtc2core.onAddStream = function(stream) {
+        //    let elem = document.getElementById("default-video-player");
+        //    elem.srcObject = stream;
+        //    elem.play();
+        //};
+    </script>
+</head>
+<body>
+    <video id="default-video-player" width="300" height="300" playsinline muted></video>
+</body>
+</html>

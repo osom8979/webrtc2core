@@ -9,7 +9,7 @@ module.exports = {
   mode: "development",
   devtool: 'inline-source-map',
   entry: {
-      main: path.join(src_dir, 'main.ts')
+      webrtc2core: path.join(src_dir, 'webrtc2core.ts')
   },
   module: {
     rules: [
@@ -25,6 +25,8 @@ module.exports = {
   },
   output: {
     path: dest_dir,
-    filename: 'webrtc2core.js'
+    filename: '[name].js',
+    libraryTarget: 'umd',
+    library: 'libwebrtc2core'
   }
 };

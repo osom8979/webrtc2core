@@ -73,6 +73,10 @@ Desktop.ini
 node_modules/
 *.lock
 
+##################
+### TypeScript ###
+*.d.ts
+
 ###############
 ### Project ###
 dest/
