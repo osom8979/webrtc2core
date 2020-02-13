@@ -7,10 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="webrtc2core.js"></script>
     <script type="text/javascript">
-        window.onload = function() {
-            const client = new libwebrtc2core.WebRTC2Core();
-            console.log(client.run());
-        }
+        const client = new libwebrtc2core.WebRTC2Core();
+        client.run();
         //rtc2core.onAddStream = function(stream) {
         //    let elem = document.getElementById("default-video-player");
         //    elem.srcObject = stream;

@@ -1,8 +1,5 @@
 'use strict';
 
-// import adapter from 'webrtc-adapter';
-// import axios from 'axios';
-
 function createUrl(protocol: string, hostname: string, port: number | string) : string
 {
     return protocol + "//" + hostname + ":" + port;
@@ -20,8 +17,40 @@ function createDefaultUrl() : string
  */
 class WebRTC2CoreInitParams
 {
-    media_list_path = 'media';
-    request_timeout = 8000;
+    /**
+     * Origin server address.
+     *
+     * Format:
+     *  {protocol}://{hostname}:{port}
+     */
+    origin = createDefaultUrl();
+
+    /**
+     * Verbose flag.
+     */
+    verbose = false;
+
+    media_list_path = 'medias';
+}
+
+/**
+ * WebRTC2Core server information.
+ *
+ * @author zer0, 2020-02-13
+ */
+class WebRTC2CoreServerInfo
+{
+    videos: Array<string>;
+    audios: Array<string>;
+    datas: Array<string>;
+
+    exists() : boolean
+    {
+        if (this.videos || this.audios || this.datas) {
+            return true;
+        }
+        return false;
+    }
 }
 
 /**
@@ -31,56 +60,55 @@ class WebRTC2CoreInitParams
  */
 export class WebRTC2Core
 {
-    private _params = new WebRTC2CoreInitParams();
-    private _base_server_address = createDefaultUrl();
-    // private _axios = axios.create();
+    /**
+     * Initialize parameters.
+     */
+    private init = new WebRTC2CoreInitParams();
 
-    constructor(address?: string, params?: WebRTC2CoreInitParams)
+    /**
+     * Server information.
+     */
+    private server = new WebRTC2CoreServerInfo();
+
+    constructor(params?: WebRTC2CoreInitParams)
     {
-        if (address) {
-            this._base_server_address = address;
-        }
         if (params) {
-            this._params = params;
+            this.init = params;
         }
-
-        // this._axios.defaults.timeout = this._params.request_timeout;
     }
 
     getBaseUri(... paths: Array<string>): string
     {
-        let result = this._base_server_address;
-        for (const path in paths) {
-            result += '/' + path;
+        let result = this.init.origin;
+        for (const k in paths) {
+            result += '/' + paths[k];
         }
         return result;
     }
 
     getMediaListPath(): string
     {
-        return this.getBaseUri(this._params.media_list_path);
+        return this.getBaseUri(this.init.media_list_path);
     }
 
-    requestGet(path: string)
+    run()
     {
-        // return this._axios.get(path);
-    }
-
-    run(): boolean
-    {
-        // this.requestGet(this.getMediaListPath())
-        //     .then((response) => {
-        //         return response.data.json();
-        //     })
-        //     .then((response) => {
-        //         console.log(response);
-        //     })
-        //     .catch((error) => {
-        //         console.log(error);
-        //     })
-        //     .then(() => {
-        //         // always executed
-        //     });
-        return true;
+        console.log("GET/medias/request ...");
+        fetch(this.getMediaListPath())
+            .then((response) => {
+                return response.json();
+            })
+            .then((json) => {
+                this.server.videos = json.videos;
+                this.server.audios = json.audios;
+                this.server.datas = json.datas;
+                console.log("GET/medias/OK",
+                    ": video=", this.server.videos,
+                    ", audio=", this.server.audios,
+                    ", data=", this.server.datas);
+            })
+            .catch((error) => {
+                console.error("GET/medias/error: ", error);
+            });
     }
 }
