@@ -1,21 +1,21 @@
 'use strict';
 
-function createUrl(protocol: string, hostname: string, port: number | string) : string
+function createUrl(protocol: string, hostname: string, port: number | string): string
 {
     return protocol + "//" + hostname + ":" + port;
 }
 
-function createDefaultUrl() : string
+function createDefaultUrl(): string
 {
     return createUrl(location.protocol, window.location.hostname, window.location.port);
 }
 
 /**
- * WebRTC2Core initialize parameters.
+ * WebRTC2Core parameters.
  *
  * @author zer0, 2020-02-13
  */
-class WebRTC2CoreInitParams
+class WebRTC2CoreParams
 {
     /**
      * Origin server address.
@@ -30,15 +30,38 @@ class WebRTC2CoreInitParams
      */
     verbose = false;
 
-    media_list_path = 'medias';
+    media_list_path = '/medias';
+    ice_servers_path = '/ice/servers';
+
+    getBaseUri(... paths: Array<string>): string
+    {
+        let result = this.origin;
+        for (const k in paths) {
+            if (paths[k].charAt(0) != '/') {
+                result += '/';
+            }
+            result += paths[k];
+        }
+        return result;
+    }
+
+    getMediaListUri(): string
+    {
+        return this.getBaseUri(this.media_list_path);
+    }
+
+    getIceServersUri(): string
+    {
+        return this.getBaseUri(this.ice_servers_path);
+    }
 }
 
 /**
- * WebRTC2Core server information.
+ * WebRTC2Core cache datas.
  *
  * @author zer0, 2020-02-13
  */
-class WebRTC2CoreServerInfo
+class WebRTC2CoreCache
 {
     videos: Array<string>;
     audios: Array<string>;
@@ -60,55 +83,74 @@ class WebRTC2CoreServerInfo
  */
 export class WebRTC2Core
 {
-    /**
-     * Initialize parameters.
-     */
-    private init = new WebRTC2CoreInitParams();
+    private params = new WebRTC2CoreParams();
+    private cache = new WebRTC2CoreCache();
 
-    /**
-     * Server information.
-     */
-    private server = new WebRTC2CoreServerInfo();
-
-    constructor(params?: WebRTC2CoreInitParams)
+    constructor(params?: WebRTC2CoreParams)
     {
         if (params) {
-            this.init = params;
+            this.params = params;
         }
     }
 
-    getBaseUri(... paths: Array<string>): string
+    public error(... message: any[]): void
     {
-        let result = this.init.origin;
-        for (const k in paths) {
-            result += '/' + paths[k];
+        console.error(message);
+    }
+
+    public log(... message: any[]): void
+    {
+        if (this.params.verbose) {
+            console.log(message);
         }
-        return result;
     }
 
-    getMediaListPath(): string
+    public clearCache(): void
     {
-        return this.getBaseUri(this.init.media_list_path);
+        this.cache = new WebRTC2CoreCache();
     }
 
-    run()
+    private onMediaList(data: any)
     {
-        console.log("GET/medias/request ...");
-        fetch(this.getMediaListPath())
+        this.cache.videos = data.videos;
+        this.cache.audios = data.audios;
+        this.cache.datas = data.datas;
+        this.log("onMediaList(", "videos=", data.videos, ",audios=", data.audios, ",datas=", data.datas, ")");
+        this.requestIceServers();
+    }
+
+    private onMediaListError(error: any): void
+    {
+        this.error("onMediaListError(", error, ")");
+    }
+
+    public async run()
+    {
+        this.log("run()");
+        return fetch(this.params.getMediaListUri())
             .then((response) => {
                 return response.json();
             })
             .then((json) => {
-                this.server.videos = json.videos;
-                this.server.audios = json.audios;
-                this.server.datas = json.datas;
-                console.log("GET/medias/OK",
-                    ": video=", this.server.videos,
-                    ", audio=", this.server.audios,
-                    ", data=", this.server.datas);
+                this.onMediaList(json);
             })
             .catch((error) => {
-                console.error("GET/medias/error: ", error);
+                this.onMediaListError(error);
+            });
+    }
+
+    private requestIceServers()
+    {
+        this.log("requestIceServers()");
+        fetch(this.params.getIceServersUri())
+            .then((response) => {
+                return response.json();
+            })
+            .then((json) => {
+                this.onMediaList(json);
+            })
+            .catch((error) => {
+                this.onMediaListError(error);
             });
     }
 }
